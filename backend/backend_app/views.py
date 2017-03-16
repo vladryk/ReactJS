@@ -33,6 +33,7 @@ class UserList(generics.ListCreateAPIView):
         instance.groups.add(Group.objects.get(name='user'))
 
     def get_queryset(self):
+        import pdb; pdb.set_trace()
         if (self.request.user.groups.filter(name='manager').exists() or
                 self.request.user.groups.filter(name='admin').exists()):
             return User.objects.filter(groups__name='user')
