@@ -64,7 +64,7 @@ var App = React.createClass({
     render: function() {
       return (
          <div>
-            <LoginForm isAuthorized={this.state.authorized} loginFunc={this.login} />
+            <LoginForm isAuthorized={true} loginFunc={this.login} />
          </div>
       );
    },
@@ -129,7 +129,7 @@ class LoginForm extends Component {
 
     return (
     // {/*<button onClick={this.onSubmit}> </button >*/}
-        <div className={this.state.authorized? '' : 'hidden'}>
+        <div className={this.state.authorized? '' : ''}>
         <div className="container">
             <label><b>Username
             <input type="text" placeholder="Enter Username" name="uname" value={this.state.username} onChange={this.handleUsername} required />

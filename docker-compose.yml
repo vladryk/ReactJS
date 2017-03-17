@@ -29,4 +29,4 @@ node:
     - "3000"
   ports:
     - "3000:3000"
-  command: /bin/bash -c "cd /web/user/ && npm install && npm run build && npm run start"
+  command: /bin/bash -c "cd /web/frontend/ && npm install && npm run build && npm run start"
