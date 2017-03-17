@@ -7,10 +7,10 @@ from . import models
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password', 'groups')
+        fields = ('id', 'username', 'email', 'password')
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Expense
-        fields = ('id', 'date', 'time', 'text', 'cost', 'user')
+        fields = ('id', 'date', 'time', 'text', 'cost')
