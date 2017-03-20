@@ -16,12 +16,15 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework_swagger.views import get_swagger_view
+from rest_framework.authtoken import views
 
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('backend_app.urls', namespace='backend_app')),
-    url(r'^rest-auth/', include('rest_auth.urls')),
+    # url(r'^rest-auth/', include('rest_auth.urls')),
+    # url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^api-token-auth/', views.obtain_auth_token),
     url(r'^$', schema_view),
 ]
