@@ -22,8 +22,8 @@ function readCookie(name) {
 	var ca = document.cookie.split(';');
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
-		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		while (c.charAt(0)===' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
 	}
 	return null;
 }
@@ -39,12 +39,18 @@ var App = React.createClass({
 
     login: function() {
         this.setState({authorized: true,});
+        this.ExpensesFromServer();
+    },
+
+    logout: function () {
+        this.setState({authorized: false,});
+        createCookie('csrftoken', '', 1);
     },
 
 
     ExpensesFromServer: function () {
         $.ajax({
-            url: this.props.url + 'api/expenses/',
+            url: 'api/expenses/',
             dataType: 'json',
             cache: false,
             type: 'GET',
@@ -56,6 +62,7 @@ var App = React.createClass({
                 xhr.setRequestHeader ("Authorization", "Token " + token);
             },
             success: function (data) {
+                console.log("expenses from server success", data);
                 this.setState({data: data});
             }.bind(this),
             error: function (xhr, status, err) {
@@ -98,7 +105,7 @@ var App = React.createClass({
     handleExpenseEdit: function (expense) {
         var that = this;
         $.ajax({
-            url: this.props.url + 'api/expenses/' + expense.id + '/',
+            url: 'api/expenses/' + expense.id + '/',
             dataType: 'json',
             type: 'PATCH',
             beforeSend: function (xhr) {
@@ -132,7 +139,7 @@ var App = React.createClass({
         var expenses = this.state.data;
         var that = this;
         $.ajax({
-            url: this.props.url + 'api/expenses/',
+            url: 'api/expenses/',
             dataType: 'json',
             type: 'POST',
             beforeSend: function (xhr) {
@@ -164,7 +171,7 @@ var App = React.createClass({
         var that = this;
 
         $.ajax({
-            url: this.props.url + 'api/expenses/' + expense.id + '/',
+            url: 'api/expenses/' + expense.id + '/',
             dataType: 'json',
             beforeSend: function (xhr) {
                 var token = readCookie('csrftoken');
@@ -184,27 +191,16 @@ var App = React.createClass({
             }
         });
     },
-    // handleLogin: function (is_authorized) {
-    //     console.log(is_authorized);
-    //     this.setState({authorized: is_authorized});
-    // },
-    // getInitialState: function () {
-    //     return {data: [], authorized: false};
-    // },
-    componentDidMount: function () {
-        if (this.state.authorized) {
-            this.ExpensesFromServer();
-        }
-    },
 
     render: function() {
       return (
          <div className="container">
-            <LoginForm isAuthorized={this.state.authorized} loginFunc={this.login} />
+            <LoginForm isAuthorized={this.state.authorized} loginFunc={this.login}/>
             {/*<ExpensesList isAuthorized={this.state.authorized} />*/}
              <div className={this.state.authorized?"":"hidden"}>
+                    <button type="submit" onClick={this.logout}>Logout</button>
                     <ExpensesList data={this.state.data} onExpenseDelete={this.handleExpenseRemove}
-                                  onExpenseEdit={this.handleExpenseEdit} />
+                                  onExpenseEdit={this.handleExpenseEdit} isAuthorized={this.state.authorized} />
                     <div className="row">
                         <div className="col-sm-4">
                             <ExpensesForm onExpenseSubmit={this.handleExpenseSubmit}/>
@@ -233,6 +229,7 @@ var ExpensesList = React.createClass({
 
     render: function () {
         var that = this;
+        console.log("expenses: ", this.props.data);
         var expenseNodes = this.props.data.map(function (expense) {
             return (
                 <Expense date={expense.date} time={expense.time} cost={expense.cost} id={expense.id} key={expense.id}
