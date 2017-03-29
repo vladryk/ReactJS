@@ -3,7 +3,17 @@ import React, { Component } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import $ from 'jquery';
-
+import Button from 'react-bootstrap/lib/Button';
+import ButtonToolbar from 'react-bootstrap/lib/ButtonToolbar';
+import Grid  from 'react-bootstrap/lib/Grid';
+import Row  from 'react-bootstrap/lib/Row';
+import Col  from 'react-bootstrap/lib/Col';
+import FormControl from 'react-bootstrap/lib/FormControl';
+import FormGroup from 'react-bootstrap/lib/FormGroup';
+import InputGroup from 'react-bootstrap/lib/InputGroup';
+import Table from 'react-bootstrap/lib/Table';
+import Navbar from 'react-bootstrap/lib/Navbar';
+import Nav from 'react-bootstrap/lib/Nav';
 
 // functions bellow come from http://www.quirksmode.org/js/cookies.html
 
@@ -90,6 +100,10 @@ var App = React.createClass({
         return 'isGreater';
     },
     handleExpensesFilter: function (filter) {
+        if (!filter.text && !filter.datefrom && !filter.dateto && !filter.timefrom && !filter.timeto){
+            this.ExpensesFromServer();
+            return
+        }
         var new_data = this.state.data;
         var data = [];
         var elength = this.state.data.length;
@@ -195,22 +209,44 @@ var App = React.createClass({
     render: function() {
       return (
          <div className="container">
-            <LoginForm isAuthorized={this.state.authorized} loginFunc={this.login}/>
-            {/*<ExpensesList isAuthorized={this.state.authorized} />*/}
+             <div className={this.state.authorized? 'hidden' : ''}>
+                <LoginForm loginFunc={this.login}/>
+             </div>
+
              <div className={this.state.authorized?"":"hidden"}>
-                    <button type="submit" onClick={this.logout}>Logout</button>
+                 <Navbar>
+                     <Navbar.Header>
+                        <Navbar.Brand>
+                            <a href="#">Expenses</a>
+                        </Navbar.Brand>
+                     </Navbar.Header>
+                    <Nav>
+                        <ButtonToolbar>
+                            <Button type="submit" bsStyle="primary" bsSize="normal" onClick={this.logout} className="btn btn-primary btn-lg pull-right">Logout</Button>
+                        </ButtonToolbar>
+                        {/*<button type="submit" onClick={this.logout}>Logout</button>*/}
+                    </Nav>
+                 </Navbar>
+
+                 <h3 className="text-center">List of Expenses</h3>
                     <ExpensesList data={this.state.data} onExpenseDelete={this.handleExpenseRemove}
                                   onExpenseEdit={this.handleExpenseEdit} isAuthorized={this.state.authorized} />
                     <div className="row">
-                        <div className="col-sm-4">
+
+                        <Col xs={6} md={4}>
+                            <h3 className="text-center">Expense Create</h3>
                             <ExpensesForm onExpenseSubmit={this.handleExpenseSubmit}/>
-                        </div>
-                        <div className="col-sm-4">
+                        </Col>
+
+                        <Col xs={6} md={4}>
+                            <h3 className="text-center">Filter of Expenses</h3>
                             <ExpensesFilterForm onExpensesFilter={this.handleExpensesFilter}/>
-                        </div>
-                        <div className="col-sm-4">
+                        </Col>
+
+                        <Col xs={6} md={4}>
+                            <h3 className="text-center" >Limit of Expenses</h3>
                             <ExpensesLimit onLimit={ this.handleLimit }/>
-                        </div>
+                        </Col>
                     </div>
              </div>
          </div>
@@ -240,24 +276,28 @@ var ExpensesList = React.createClass({
         });
 
         return (
-            <div className={this.props.isAuthorized? '' : 'hidden'}>
-                <div className="expensesList">
-                    <br/>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Text</th>
-                            <th>Cost</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            {expenseNodes}
-                        </tbody>
-                    </table>
+
+                <div className={this.props.isAuthorized? '' : 'hidden'}>
+
+                        <div className="expensesList">
+                            <br/>
+                            <Table striped bordered condensed hover>
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Text</th>
+                                    <th>Cost</th>
+                                    <th>Remove</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {expenseNodes}
+                                </tbody>
+                            </Table>
+                        </div>
+
                 </div>
-            </div>
         );
     }
 });
@@ -288,9 +328,9 @@ var ExpensesFilterForm = React.createClass({
         var dateto = this.state.dateto;
         var timefrom = this.state.timefrom;
         var timeto = this.state.timeto;
-        if (!text || !datefrom || !dateto || !timefrom || !timeto) {
-            return;
-        }
+        // if (!text && !datefrom && !dateto && !timefrom && !timeto) {
+        //     return;
+        // }
         this.props.onExpensesFilter({
             datefrom: datefrom,
             dateto: dateto,
@@ -302,7 +342,7 @@ var ExpensesFilterForm = React.createClass({
     },
     render: function () {
         return (
-            <form className="form-inline">
+            <form>
                 <br/>
                 <input type="date"
                        className="form-control"
@@ -334,7 +374,9 @@ var ExpensesFilterForm = React.createClass({
                        value={this.state.text}
                        onChange={this.handleTextChange}/>
                 <br/>
-                <input type="button" value="Filter" onClick={this.handleFilter}/>
+                <ButtonToolbar>
+                    <Button type="button" value="Filter" bsStyle="success" onClick={this.handleFilter}>Filter</Button>
+                </ButtonToolbar>
             </form>
         );
     }
@@ -370,7 +412,7 @@ var ExpensesForm = React.createClass({
     },
     render: function () {
         return (
-            <form className="form-inline" onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit}>
                 <br/>
                 <input type="date"
                        className="form-control"
@@ -396,7 +438,10 @@ var ExpensesForm = React.createClass({
                        value={this.state.cost}
                        onChange={this.handleCostChange}/>
                 <br/>
-                <input type="submit" value="Save"/>
+                <ButtonToolbar>
+                    <Button type="submit" value="Save" bsStyle="success">Save</Button>
+                </ButtonToolbar>
+                {/*<input type="submit" value="Save"/>*/}
             </form>
         );
     }
@@ -412,7 +457,6 @@ var ExpensesLimit = React.createClass({
     render: function () {
         return (
             <div className={this.props.onLimit({limit: this.state.limit})}>
-                Limit
                 <br/>
                 <input type="number" className="form-control" value={ this.state.limit }
                        onChange={this.handleLimitChange}/>
@@ -476,11 +520,35 @@ var Expense = React.createClass({
     render: function () {
         return (
             <tr>
-                <td><input type="date" value={this.props.date} onChange={this.handleDateChange}/></td>
-                <td><input type="time" value={this.props.time} onChange={this.handleTimeChange}/></td>
-                <td><input type="text" value={this.props.children} onChange={this.handleTextChange}/></td>
-                <td><input type="number" value={this.props.cost} onChange={this.handleCostChange}/></td>
-                <td><input type="button" value="Remove" onClick={this.handleExpenseRemove}/></td>
+                <td>
+                    <FormGroup bsSize="normal">
+                        <FormControl type="date" value={this.props.date} onChange={this.handleDateChange} />
+                    </FormGroup>
+                </td>
+
+                <td>
+                    <FormGroup bsSize="normal">
+                        <FormControl type="time" value={this.props.time} onChange={this.handleTimeChange} />
+                    </FormGroup>
+                </td>
+
+                <td>
+                    <FormGroup bsSize="normal">
+                        <FormControl type="text" value={this.props.children} onChange={this.handleTextChange} />
+                    </FormGroup>
+                </td>
+
+                <td>
+                    <FormGroup bsSize="normal">
+                        <FormControl type="number" value={this.props.cost} onChange={this.handleCostChange} />
+                    </FormGroup>
+                </td>
+
+                <td>
+                    <ButtonToolbar>
+                            <Button type="button" value="Remove" onClick={this.handleExpenseRemove} >Remove</Button>
+                    </ButtonToolbar>
+                </td>
 
             </tr>
         );
@@ -568,22 +636,27 @@ class LoginForm extends Component {
   render() {
 
     return (
-        <div className={this.state.authorized? 'hidden' : ''}>
-        <div className="container">
-            <label><b>Username
-            <input type="text" placeholder="Enter Username" name="uname" value={this.state.username} onChange={this.handleUsername} required />
-        </b></label>
+          <Grid>
+              <Row className="show-grid">
+                  <Col xs={6} md={4}></Col>
 
-        <label><b>Password
-        <input type="password" placeholder="Enter Password" name="psw" value={this.state.password} onChange={this.handlePassword} required />
-        </b></label>
+                    <Col xs={6} md={4}>
 
-        <button type="submit" onClick={this.handleLogin}>Login</button>
+                        <FormGroup bsSize="large">
+                            <FormControl type="text" placeholder="Enter Username" name="uname" value={this.state.username} onChange={this.handleUsername} required />
+                            <FormControl type="password" placeholder="Enter Password" name="psw" value={this.state.password} onChange={this.handlePassword} required />
+                        </FormGroup>
 
-        </div>
-            <span className="psw"><a href="#">Create account</a></span>
-        </div>
+                        <ButtonToolbar>
+                            <Button type="submit" bsStyle="primary" bsSize="large" onClick={this.handleLogin}>Login</Button>
+                        </ButtonToolbar>
 
+                        <span className="psw"><a href="#">Create account</a></span>
+
+                    </Col>
+                  <Col xs={6} md={4}></Col>
+              </Row>
+          </Grid>
     );
   }
 }
